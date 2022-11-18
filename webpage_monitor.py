@@ -52,6 +52,10 @@ def continuously_check_webpage_changes(url: str, refresh_rate: int = 86_400):
         # Checking successful response for changes.
         if is_changed:
             print("A change has been detected")
-            break
+
+            # Update state used for comparison.
+            response = requests.get(url)
+            comparison_webpage_state = response.text
+
         else:
             print("...")
