@@ -68,10 +68,10 @@ if args.check_once:
         is_changed = is_webpage_changed(URL_TO_MONITOR, comparison_state)
     except:
         # Account for lost connection.
-        print("Unable to get a response")
+        print("\033[1;33mUnable to get a response\033[0m")
     else:
         if is_changed:
-            print("A change has been detected")
+            print("\033[1;31mA change has been detected\033[0m")
 
             # Update state used for comparison.
             comparison_state = get_webpage_state(URL_TO_MONITOR)
@@ -79,7 +79,7 @@ if args.check_once:
                 f.write(comparison_state)
 
         else:
-            print("No changes detected")
+            print("\033[1;32mNo changes detected\033[0m")
 
 if args.get_comparison_state:
     comparison_state = get_webpage_state(URL_TO_MONITOR)
