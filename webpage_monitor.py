@@ -41,7 +41,16 @@ def continuously_check_webpage_changes(url: str, refresh_rate: int = 86_400):
     while True:
         sleep(refresh_rate)
 
-        if is_webpage_changed(url, comparison_webpage_state):
+        try:
+            # Try to get a response.
+            is_changed = is_webpage_changed(url, comparison_webpage_state)
+        except:
+            # Account for lost connection.
+            print("Unable to get a response")
+            continue
+
+        # Checking successful response for changes.
+        if is_changed:
             print("A change has been detected")
             break
         else:
