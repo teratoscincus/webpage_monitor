@@ -66,16 +66,23 @@ if args.check_continuously:
 if args.check_once:
     with open(COMPARISON_STATE_FILE, "r") as f:
         comparison_state = f.read()
-    if is_webpage_changed(URL_TO_MONITOR, comparison_state):
-        print("A change has been detected")
 
-        # Update state used for comparison.
-        comparison_state = get_webpage_state(URL_TO_MONITOR)
-        with open(COMPARISON_STATE_FILE, "w") as f:
-            f.write(comparison_state)
-
+    try:
+        is_changed = is_webpage_changed(URL_TO_MONITOR, comparison_state)
+    except:
+        # Account for lost connection.
+        print("Unable to get a response")
     else:
-        print("No changes detected")
+        if is_changed:
+            print("A change has been detected")
+
+            # Update state used for comparison.
+            comparison_state = get_webpage_state(URL_TO_MONITOR)
+            with open(COMPARISON_STATE_FILE, "w") as f:
+                f.write(comparison_state)
+
+        else:
+            print("No changes detected")
 
 if args.get_comparison_state:
     comparison_state = get_webpage_state(URL_TO_MONITOR)
