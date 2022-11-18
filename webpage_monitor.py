@@ -59,3 +59,14 @@ def continuously_check_webpage_changes(url: str, refresh_rate: int = 86_400):
 
         else:
             print("...")
+
+
+def get_webpage_state(url: str) -> str:
+    """
+    Return a string value of current state of a webpage.
+
+    Params:
+        url - Takes a string value of URL to get as an argument.
+    """
+    response = requests.get(url)
+    return response.text
