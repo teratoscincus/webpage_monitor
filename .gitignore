@@ -1,4 +1,7 @@
 __pycache__/
 
+# Configs
+config.py
+
 # File created by program fo webpage comparison.
 previous_webpage_state.txt

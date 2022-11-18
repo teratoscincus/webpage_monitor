@@ -3,15 +3,12 @@
 import argparse
 from pathlib import Path
 
+from config import URL_TO_MONITOR, REFRESH_RATE_SECONDS
 from webpage_monitor import (
     continuously_check_webpage_changes,
     is_webpage_changed,
     get_webpage_state,
 )
-
-# Configs
-URL_TO_MONITOR = "http://127.0.0.1:5000"
-REFRESH_RATE_SECONDS = 3
 
 # Constants required for the program.
 BASE_DIR = Path(__file__).resolve().parent
