@@ -1,72 +1,56 @@
-"""Module defining the functions to check for changes in a webpage."""
+"""Main entry point for the webpage monitor program."""
 
-import requests
+import argparse
+from pathlib import Path
 from time import sleep
 
+from scraper import Scraper
+from config import URL_TO_MONITOR, REFRESH_RATE_SECONDS
 
-def is_webpage_changed(url: str, comparison_state: str) -> bool:
-    """
-    Return boolean value depending on whether specified webpage has changed or not.
+# Constants required for the program.
+BASE_DIR = Path(__file__).resolve().parent
 
-    Params:
-        url - Takes a string value of URL to monitor as an argument.
-        comparison_state - Takes a string of a webpage HTML as an argument.
-    """
-    # Get latest webpage content.
-    response = requests.get(url)
-    latest_webpage_state = response.text
+# ClI arguments
+parser = argparse.ArgumentParser(
+    prog="Webpage Monitor",
+    description=(
+        "Check for changes in a webpage. Can be run continuously or run once. "
+        "A copy of the webpage's state needs to be saved locally before a check can be "
+        "done once. This is not needed prior to the continuos check."
+    ),
+)
+# Run continuously
+parser.add_argument(
+    "-c",
+    "--check_continuously",
+    nargs="?",
+    const=True,
+    help=(
+        "Runs a scrips to continuously check for updates of a webpage. "
+        "No prior steps needed before this execution."
+    ),
+)
+# Run once
+parser.add_argument(
+    "-o",
+    "--check_once",
+    nargs="?",
+    const=True,
+    help=(
+        "Compare current webpage state to locally saved copy of previous state. "
+        "Must have a locally saved copy of an old state for the website for comparison."
+    ),
+)
+# Parse CLI arguments.
+args = parser.parse_args()
 
-    # Check for changes.
-    if latest_webpage_state != comparison_state:
-        return True
-    else:
-        return False
+# Create Scraper instance.
+scraper = Scraper()
 
-
-def continuously_check_webpage_changes(url: str, refresh_rate: int = 86_400):
-    """
-    Continuously check for changes in specified webpage.
-
-    Params:
-        url - Takes a string value of URL to monitor as an argument.
-        refresh_rate (optional) - Takes an integer values of seconds to wait before
-            attempting another get request.
-            Defaults to 86,400 seconds (24 hours).
-    """
-    # Get webpage content to use for comparison.
-    response = requests.get(url)
-    comparison_webpage_state = response.text
-
-    # Init loop to check if webpage has changed.
+if args.check_continuously:
     while True:
-        sleep(refresh_rate)
+        scraper.compare_sources(URL_TO_MONITOR, comparison_path=BASE_DIR)
+        sleep(REFRESH_RATE_SECONDS)
 
-        try:
-            # Try to get a response.
-            is_changed = is_webpage_changed(url, comparison_webpage_state)
-        except:
-            # Account for lost connection.
-            print("Unable to get a response")
-            continue
-
-        # Checking successful response for changes.
-        if is_changed:
-            print("A change has been detected")
-
-            # Update state used for comparison.
-            response = requests.get(url)
-            comparison_webpage_state = response.text
-
-        else:
-            print("...")
-
-
-def get_webpage_state(url: str) -> str:
-    """
-    Return a string value of current state of a webpage.
-
-    Params:
-        url - Takes a string value of URL to get as an argument.
-    """
-    response = requests.get(url)
-    return response.text
+elif args.check_once:
+    scraper.compare_sources(URL_TO_MONITOR, comparison_path=BASE_DIR)
